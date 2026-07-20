@@ -36,15 +36,15 @@
  └── 📁 backend     # Spring Boot 기반 백엔드 API ⚙️
 ```
 
-### 실행방법 
+## 실행방법 
 
  cd backend
-# Gradle 빌드 및 실행
+### Gradle 빌드 및 실행
 ./gradlew bootRun
 
 
 cd frontend
-# 패키지 설치 및 서버 실행
+### 패키지 설치 및 서버 실행
 npm install
 npm run dev
 
