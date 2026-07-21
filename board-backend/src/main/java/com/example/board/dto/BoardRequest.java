@@ -44,4 +44,14 @@ public class BoardRequest {
     public void setContent(String content) {
         this.content = content;
     }
+
+    private String imageUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

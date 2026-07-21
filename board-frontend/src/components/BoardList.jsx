@@ -29,13 +29,8 @@ function BoardList() {
     fetchBoards(keyword);
   };
 
-  // 📢 공지사항 데이터 필터링 (isNotice 또는 notice 필드 활용) 및 최신 5개 추출
+  // 📢 공지사항 데이터 필터링 및 최신 5개 추출
   const notices = boards.filter((board) => board.isNotice || board.notice).slice(0, 5);
-
-  const displayNotices = notices.length > 0 ? notices : [
-  { id: 999, title: "🎀 몽글몽글 게시판 이용 규칙 안내!", createdAt: "2026-07-20", isNotice: true },
-  { id: 998, title: "📢 점검 및 업데이트 소식이에요 ✨", createdAt: "2026-07-20", isNotice: true },
-];
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -135,44 +130,64 @@ function BoardList() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {boards.map((board) => (
-            <Link
-              key={board.id}
-              to={`/boards/${board.id}`}
-              className="group flex flex-col justify-between rounded-3xl border-2 border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-pink-300 hover:shadow-md"
-            >
-              <div>
-                {/* 📌 제목 */}
-                <div className="flex items-center gap-2">
-                  {board.isNotice && (
-                    <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-                      공지
-                    </span>
+          {boards.map((board) => {
+            // 📸 이미지 경로 추출 (imageUrl 또는 fileUrl)
+            const imagePath = board.imageUrl || board.fileUrl;
+
+            return (
+              <Link
+                key={board.id}
+                to={`/boards/${board.id}`}
+                className="group flex flex-col justify-between rounded-3xl border-2 border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-pink-300 hover:shadow-md"
+              >
+                <div>
+                  {/* 📸 이미지가 있을 때만 썸네일 출력 */}
+                  {imagePath && (
+                    <div className="mb-3 overflow-hidden rounded-2xl bg-pink-50">
+                      <img
+                        src={
+                          imagePath.startsWith("http")
+                            ? imagePath
+                            : `http://localhost:8081${imagePath}`
+                        }
+                        alt={board.title}
+                        className="h-36 w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                    </div>
                   )}
-                  <h2 className="line-clamp-1 text-base font-bold text-gray-800 group-hover:text-pink-500 transition">
-                    {board.title}
-                  </h2>
+
+                  {/* 📌 제목 */}
+                  <div className="flex items-center gap-2">
+                    {board.isNotice && (
+                      <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                        공지
+                      </span>
+                    )}
+                    <h2 className="line-clamp-1 text-base font-bold text-gray-800 group-hover:text-pink-500 transition">
+                      {board.title}
+                    </h2>
+                  </div>
+
+                  {/* 📝 내용 요약 */}
+                  <p className="mt-2 line-clamp-2 text-xs text-gray-500 leading-relaxed">
+                    {board.content}
+                  </p>
                 </div>
 
-                {/* 📝 내용 요약 */}
-                <p className="mt-2 line-clamp-2 text-xs text-gray-500 leading-relaxed">
-                  {board.content}
-                </p>
-              </div>
-
-              {/* 👤 작성자 & 날짜 정보 */}
-              <div className="mt-4 flex items-center justify-between border-t border-pink-50 pt-3 text-[11px] text-purple-400 font-medium">
-                <span className="flex items-center gap-1">
-                  👤 {board.writer || "익명"}
-                </span>
-                <span>
-                  {board.createdAt
-                    ? new Date(board.createdAt).toLocaleDateString()
-                    : "오늘"}
-                </span>
-              </div>
-            </Link>
-          ))}
+                {/* 👤 작성자 & 날짜 정보 */}
+                <div className="mt-4 flex items-center justify-between border-t border-pink-50 pt-3 text-[11px] text-purple-400 font-medium">
+                  <span className="flex items-center gap-1">
+                    👤 {board.writer || "익명"}
+                  </span>
+                  <span>
+                    {board.createdAt
+                      ? new Date(board.createdAt).toLocaleDateString()
+                      : "오늘"}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
