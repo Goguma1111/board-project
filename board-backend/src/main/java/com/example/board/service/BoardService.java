@@ -7,6 +7,7 @@ import com.example.board.repository.BoardRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,5 +62,10 @@ public class BoardService {
     private Board findBoardOrThrow(Long id) {
         return boardRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다. id=" + id));
+    }
+
+    public BoardResponse createBoard(String title, String writer, String content, MultipartFile image) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'createBoard'");
     }
 }

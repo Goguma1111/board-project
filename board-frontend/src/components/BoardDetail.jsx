@@ -93,17 +93,24 @@ function BoardDetail() {
           </div>
         </div>
 
-        {/* 📸 첨부된 이미지가 있을 경우 출력 */}
-        {board.imageUrl && (
-          <div className="mt-6 flex justify-center">
-            <img
-              src={board.imageUrl}
-              alt="첨부 이미지"
-              className="max-h-96 rounded-2xl border-2 border-dashed border-pink-100 object-cover shadow-sm"
-            />
-          </div>
-        )}
+        {(() => {
+          const imagePath = board.imageUrl || board.fileUrl; // 둘 중 존재하는 값 사용
+          if (!imagePath) return null;
 
+          const fullUrl = imagePath.startsWith("http")
+              ? imagePath
+              : `http://localhost:8081${imagePath}`;
+
+            return (
+              <div className="mt-6 flex justify-center">
+                <img
+                  src={fullUrl}
+                  alt="첨부 이미지"
+                  className="max-h-96 rounded-2xl border-2 border-dashed border-pink-100 object-cover shadow-sm"
+                />
+              </div>
+            );
+          })()}
         {/* 📝 본문 내용 */}
         <div className="py-6 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap min-h-[150px]">
           {board.content}

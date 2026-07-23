@@ -19,9 +19,12 @@ export const createBoard = (formData) => {
   return axiosInstance.post("/boards", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
+
     },
   });
 };
+
+
 // 게시글 수정
 // 백엔드 예시: PUT /api/boards/{id}
 export const updateBoard = (id, data) => {

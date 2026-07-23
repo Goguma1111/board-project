@@ -24,10 +24,16 @@ function BoardEdit() {
     setError(null);
     try {
       const response = await getBoard(id);
-      const { title, writer, content, imageUrl } = response.data;
+      const { title, writer, content, imageUrl, fileUrl } = response.data;
       setForm({ title, writer: writer ?? "", content });
-      if (imageUrl) {
-        setPreviewUrl(imageUrl); // 기존에 등록된 이미지/GIF 미리보기
+
+      // 🌸 1. 기존 이미지 경로 처리 (http로 시작 안 하면 백엔드 주소 붙이기)
+      const path = imageUrl || fileUrl;
+      if (path) {
+        const fullUrl = path.startsWith("http")
+          ? path
+          : `http://localhost:8081${path}`;
+        setPreviewUrl(fullUrl);
       }
     } catch (err) {
       console.error(err);
@@ -48,7 +54,7 @@ function BoardEdit() {
     if (selectedFile) {
       setFile(selectedFile);
       const url = URL.createObjectURL(selectedFile);
-      setPreviewUrl(url); // 새 파일 미리보기로 교체
+      setPreviewUrl(url); // 새 파일 선택 시 미리보기 교체
     }
   };
 
@@ -64,14 +70,14 @@ function BoardEdit() {
     setError(null);
 
     try {
-      // 일반 JSON 또는 FormData 중 백엔드 스펙에 맞춰 전송 가능합니다.
-      // 파일도 함께 보낼 경우 FormData 사용:
       const formData = new FormData();
       formData.append("title", form.title);
       formData.append("content", form.content);
       formData.append("writer", form.writer);
+
+      // 🌸 2. 백엔드 매개변수 명에 맞춰 "file" 키로 추가
       if (file) {
-        formData.append("image", file); // 백엔드 변수명("image" 또는 "file") 확인!
+        formData.append("file", file);
       }
 
       await updateBoard(id, formData);
