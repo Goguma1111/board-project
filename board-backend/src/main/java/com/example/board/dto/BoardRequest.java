@@ -12,6 +12,11 @@ public class BoardRequest {
     @NotBlank(message = "내용을 입력해주세요.")
     private String content;
 
+    private String imageUrl;
+
+    // 📢 공지사항 여부 필드 추가!
+    private boolean isNotice = false;
+
     public BoardRequest() {
     }
 
@@ -45,13 +50,20 @@ public class BoardRequest {
         this.content = content;
     }
 
-    private String imageUrl;
-
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    // 📢 공지사항 Getter & Setter 추가
+    public boolean isNotice() {
+        return isNotice;
+    }
+
+    public void setNotice(boolean notice) {
+        isNotice = notice;
     }
 }

@@ -1,5 +1,6 @@
 package com.example.board.controller;
 
+import com.example.board.domain.Board;
 import com.example.board.dto.BoardRequest;
 import com.example.board.dto.BoardResponse;
 import com.example.board.service.BoardService;
@@ -28,26 +29,27 @@ public class BoardController {
 
     // GET /api/boards?keyword=검색어 (누구나 조회 가능)
     @GetMapping
-    public ResponseEntity<List<BoardResponse>> getBoards(
+    public ResponseEntity<List<Board>> getBoards(
             @RequestParam(required = false) String keyword) {
         return ResponseEntity.ok(boardService.getBoards(keyword));
     }
 
     // GET /api/boards/{id} (누구나 조회 가능)
     @GetMapping("/{id}")
-    public ResponseEntity<BoardResponse> getBoard(@PathVariable Long id) {
-        return ResponseEntity.ok(boardService.getBoard(id));
+    public ResponseEntity<Board> getBoard(@PathVariable Long id) {
+        return ResponseEntity.ok(boardService.getBoardById(id));
     }
 
-    // 📸 POST /api/boards (로그인 필수 + 파일 업로드 및 uploads 저장 로직 추가!)
+    // 📸 POST /api/boards (로그인 필수 + 파일 업로드 및 공지사항 등록)
     @PostMapping
     public ResponseEntity<?> createBoard(
             @RequestHeader(value = "Authorization", required = false) String token,
             @RequestParam("title") String title,
             @RequestParam("writer") String writer,
             @RequestParam("content") String content,
+            @RequestParam(value = "isNotice", required = false, defaultValue = "false") boolean isNotice, // 📢 공지사항 여부 수신
             @RequestParam(value = "image", required = false) MultipartFile image,
-            @RequestParam(value = "file", required = false) MultipartFile file) { // image와 file 둘 다 대처
+            @RequestParam(value = "file", required = false) MultipartFile file) {
 
         // 1. 로그인 토큰 확인
         if (token == null || token.isBlank()) {
@@ -61,22 +63,18 @@ public class BoardController {
         // 2. 📸 실제 uploads 폴더에 파일 저장하기!
         if (uploadFile != null && !uploadFile.isEmpty()) {
             try {
-                // uploads 폴더 위치 구하기
                 String uploadDir = System.getProperty("user.dir") + File.separator + "uploads";
                 File dir = new File(uploadDir);
                 if (!dir.exists()) {
-                    dir.mkdirs(); // 폴더 없으면 생성
+                    dir.mkdirs();
                 }
 
-                // 파일명 중복 방지를 위한 UUID 생성
                 String originalFilename = uploadFile.getOriginalFilename();
                 String savedFilename = UUID.randomUUID().toString() + "_" + originalFilename;
 
-                // 디스크에 저장
                 File dest = new File(dir, savedFilename);
                 uploadFile.transferTo(dest);
 
-                // DB에 넣을 상대 경로 지정
                 imageUrl = "/uploads/" + savedFilename;
                 System.out.println("🎉 파일 저장 성공! 경로: " + imageUrl);
 
@@ -90,10 +88,12 @@ public class BoardController {
         request.setTitle(title);
         request.setWriter(writer);
         request.setContent(content);
-        request.setImageUrl(imageUrl); // 👈 🌸 DTO에 저장된 이미지 경로 전달!
+        request.setImageUrl(imageUrl);
+        request.setNotice(isNotice); // 📢 DTO에 세팅
 
-        BoardResponse response = boardService.createBoard(request);
-        
+        Board savedBoard = boardService.createBoard(request);
+        BoardResponse response = new BoardResponse(savedBoard); 
+
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

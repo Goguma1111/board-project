@@ -1,19 +1,16 @@
 package com.example.board.domain;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "board")
+@Getter 
+@Setter 
+@NoArgsConstructor // JPA 필수 기본 생성자
 public class Board {
 
     @Id
@@ -30,6 +27,12 @@ public class Board {
     @Column(nullable = false)
     private String content;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @Column(name = "is_notice")
+    private boolean isNotice = false; // 📢 공지사항 여부
+
     @Column(name = "view_count", nullable = false)
     private int viewCount = 0;
 
@@ -38,10 +41,6 @@ public class Board {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-    protected Board() {
-        // JPA 기본 생성자
-    }
 
     public Board(String title, String writer, String content) {
         this.title = title;
@@ -68,33 +67,5 @@ public class Board {
 
     public void increaseViewCount() {
         this.viewCount++;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getWriter() {
-        return writer;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public int getViewCount() {
-        return viewCount;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }

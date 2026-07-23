@@ -12,6 +12,7 @@ function BoardList() {
     try {
       setLoading(true);
       const response = await getBoards(searchKeyword);
+      console.log("🌸 백엔드 데이터:", response.data);
       setBoards(response.data);
     } catch (error) {
       console.error("게시글을 불러오는데 실패했어요:", error);
@@ -29,8 +30,23 @@ function BoardList() {
     fetchBoards(keyword);
   };
 
-  // 📢 공지사항 데이터 필터링 및 최신 5개 추출
-  const notices = boards.filter((board) => board.isNotice || board.notice).slice(0, 5);
+  // 📢 공지사항 데이터 필터링 (상단 공지 박스용)
+  const notices = boards
+    .filter(
+      (board) =>
+        board.notice === true ||
+        board.isNotice === true ||
+        (board.title && board.title.includes("[공지]"))
+    )
+    .slice(0, 5);
+
+  // 📜 순수 일반 게시글 데이터 필터링 (하단 카드 목록용 - 공지글 제외!)
+  const regularBoards = boards.filter(
+    (board) =>
+      !board.notice &&
+      !board.isNotice &&
+      (!board.title || !board.title.includes("[공지]"))
+  );
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
@@ -44,7 +60,7 @@ function BoardList() {
         </p>
       </div>
 
-      {/* 📢 공지사항 섹션 (최대 5개 노출) */}
+      {/* 📢 공지사항 섹션 (상단 공지 박스에만 똭!) */}
       {!loading && notices.length > 0 && (
         <div className="mb-8 overflow-hidden rounded-3xl border-2 border-amber-200 bg-amber-50/70 p-5 shadow-sm backdrop-blur-sm">
           <div className="mb-3 flex items-center justify-between border-b border-amber-200/70 pb-2.5">
@@ -114,15 +130,15 @@ function BoardList() {
         </Link>
       </div>
 
-      {/* 📜 일반 게시글 목록 영역 */}
+      {/* 📜 일반 게시글 목록 영역 (공지글 제외!) */}
       {loading ? (
         <div className="py-20 text-center text-xs font-bold text-pink-400">
           로딩 중이에요... 🌸
         </div>
-      ) : boards.length === 0 ? (
+      ) : regularBoards.length === 0 ? (
         <div className="rounded-3xl border-2 border-dashed border-pink-200 bg-pink-50/30 py-16 text-center">
           <p className="text-sm font-bold text-purple-400">
-            아직 작성된 글이 없어요! 😿
+            아직 작성된 일반 글이 없어요! 😿
           </p>
           <p className="mt-1 text-xs text-pink-300">
             첫 번째 주인공이 되어 글을 올려보세요 ✨
@@ -130,8 +146,8 @@ function BoardList() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
-          {boards.map((board) => {
-            // 📸 이미지 경로 추출 (imageUrl 또는 fileUrl)
+          {regularBoards.map((board) => {
+            // 📸 이미지 경로 추출
             const imagePath = board.imageUrl || board.fileUrl;
 
             return (
@@ -141,7 +157,7 @@ function BoardList() {
                 className="group flex flex-col justify-between rounded-3xl border-2 border-pink-100 bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:border-pink-300 hover:shadow-md"
               >
                 <div>
-                  {/* 📸 이미지가 있을 때만 썸네일 출력 */}
+                  {/* 📸 이미지 썸네일 */}
                   {imagePath && (
                     <div className="mb-3 overflow-hidden rounded-2xl bg-pink-50">
                       <img
@@ -157,16 +173,9 @@ function BoardList() {
                   )}
 
                   {/* 📌 제목 */}
-                  <div className="flex items-center gap-2">
-                    {board.isNotice && (
-                      <span className="shrink-0 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-700">
-                        공지
-                      </span>
-                    )}
-                    <h2 className="line-clamp-1 text-base font-bold text-gray-800 group-hover:text-pink-500 transition">
-                      {board.title}
-                    </h2>
-                  </div>
+                  <h2 className="line-clamp-1 text-base font-bold text-gray-800 group-hover:text-pink-500 transition">
+                    {board.title}
+                  </h2>
 
                   {/* 📝 내용 요약 */}
                   <p className="mt-2 line-clamp-2 text-xs text-gray-500 leading-relaxed">

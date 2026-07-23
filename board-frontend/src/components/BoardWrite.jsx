@@ -7,11 +7,12 @@ function BoardWrite() {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
 
-  // 1. 폼 데이터 상태
+  // 1. 폼 데이터 상태 (isNotice / notice 체크용 상태 추가)
   const [form, setForm] = useState({
     title: "",
     writer: "",
     content: "",
+    isNotice: false, // 👈 공지사항 여부
   });
 
   // 2. 내 컴퓨터의 GIF/이미지 파일 상태 & 미리보기 URL 상태
@@ -20,6 +21,15 @@ function BoardWrite() {
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+
+  // 👑 관리자 여부 체크 (role이 ADMIN이거나, 이름/이메일이 관리자인 경우)
+  const isAdmin =
+    user &&
+    (user.role === "ADMIN" ||
+      user.role === "ROLE_ADMIN" ||
+      user.name === "관리자" ||
+      user.writer === "관리자" ||
+      user.email?.includes("admin"));
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -36,10 +46,13 @@ function BoardWrite() {
     }
   }, [isAuthenticated, user, navigate]);
 
-  // 텍스트 입력 처리
+  // 텍스트 및 체크박스 입력 처리
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   // 📸 내 컴퓨터의 GIF/이미지 파일 선택 처리
@@ -47,7 +60,6 @@ function BoardWrite() {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
       setFile(selectedFile);
-      // 브라우저에서 GIF가 바로 움직이도록 임시 URL 생성
       const url = URL.createObjectURL(selectedFile);
       setPreviewUrl(url);
     }
@@ -66,11 +78,14 @@ function BoardWrite() {
     setError(null);
 
     try {
-      // 내 컴퓨터의 파일을 서버로 보내기 위해 FormData 생성
       const formData = new FormData();
       formData.append("title", form.title);
       formData.append("content", form.content);
       formData.append("writer", form.writer);
+
+      // 📢 백엔드에서 isNotice 또는 notice 둘 다 호환되도록 둘 다 전송
+      formData.append("isNotice", form.isNotice);
+      formData.append("notice", form.isNotice);
 
       // 파일이 선택되었으면 추가
       if (file) {
@@ -110,6 +125,26 @@ function BoardWrite() {
           </div>
         )}
 
+        {/* 👑 관리자일 때만 노출되는 공지사항 체크박스! */}
+        {isAdmin && (
+          <div className="flex items-center gap-2 rounded-2xl border-2 border-amber-200 bg-amber-50 p-3.5 shadow-xs">
+            <input
+              type="checkbox"
+              id="isNotice"
+              name="isNotice"
+              checked={form.isNotice}
+              onChange={handleChange}
+              className="h-4 w-4 rounded-md accent-amber-500 cursor-pointer"
+            />
+            <label
+              htmlFor="isNotice"
+              className="text-xs font-extrabold text-amber-800 cursor-pointer select-none"
+            >
+              📢 이 글을 최상단 [공지사항]으로 등록할까요?
+            </label>
+          </div>
+        )}
+
         {/* 작성자 (고정) */}
         <div>
           <label className="mb-1 block text-xs font-bold text-pink-600">
@@ -139,19 +174,18 @@ function BoardWrite() {
           />
         </div>
 
-        {/* 📸 내 컴퓨터의 파일(GIF/이미지) 선택 영역 */}
+        {/* 📸 파일 선택 */}
         <div>
           <label className="mb-1 block text-xs font-bold text-purple-600">
             🖼️ 내 컴퓨터에서 GIF / 사진 선택하기 (움짤 가능! ✨)
           </label>
           <input
             type="file"
-            accept="image/*" // 👈 GIF, PNG, JPG 파일 지원
+            accept="image/*"
             onChange={handleFileChange}
             className="w-full text-xs text-gray-500 file:mr-4 file:rounded-full file:border-0 file:bg-purple-100 file:px-4 file:py-2 file:text-xs file:font-bold file:text-purple-600 hover:file:bg-purple-200 cursor-pointer"
           />
 
-          {/* 💡 선택한 GIF 움직이는 미리보기 */}
           {previewUrl && (
             <div className="mt-4 flex flex-col items-center">
               <p className="mb-2 text-[11px] font-bold text-purple-400">

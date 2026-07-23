@@ -2,18 +2,14 @@ package com.example.board.service;
 
 import com.example.board.domain.Board;
 import com.example.board.dto.BoardRequest;
-import com.example.board.dto.BoardResponse;
 import com.example.board.repository.BoardRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 public class BoardService {
 
     private final BoardRepository boardRepository;
@@ -22,50 +18,60 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-    public List<BoardResponse> getBoards(String keyword) {
-        List<Board> boards = (keyword == null || keyword.isBlank())
-                ? boardRepository.findAllByOrderByIdDesc()
-                : boardRepository.findByTitleContainingOrderByIdDesc(keyword);
-
-        return boards.stream()
-                .map(BoardResponse::new)
-                .collect(Collectors.toList());
+    // 🌸 게시글 목록 조회 및 검색 (getBoards)
+    @Transactional(readOnly = true)
+    public List<Board> getBoards(String keyword) {
+        if (keyword != null && !keyword.isBlank()) {
+            return boardRepository.findByTitleContainingOrderByIdDesc(keyword);
+        }
+        return boardRepository.findAllByOrderByIsNoticeDescIdDesc();
     }
 
+    // 🌸 게시글 전체 조회 (키워드 없을 때)
+    @Transactional(readOnly = true)
+    public List<Board> getAllBoards() {
+        return boardRepository.findAllByOrderByIsNoticeDescIdDesc();
+    }
+
+    // 🌸 게시글 생성
+    public Board createBoard(BoardRequest request) {
+        Board board = new Board();
+        board.setTitle(request.getTitle());
+        board.setContent(request.getContent());
+        board.setWriter(request.getWriter());
+        board.setImageUrl(request.getImageUrl());
+        board.setNotice(request.isNotice());
+
+        return boardRepository.save(board);
+    }
+
+    // 🌸 게시글 수정
+    public Board updateBoard(Long id, BoardRequest request) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
+
+        board.setTitle(request.getTitle());
+        board.setContent(request.getContent());
+        board.setWriter(request.getWriter());
+        board.setImageUrl(request.getImageUrl());
+        board.setNotice(request.isNotice());
+
+        return board;
+    }
+
+    // 🌸 게시글 상세 조회
     @Transactional
-    public BoardResponse getBoard(Long id) {
-        Board board = findBoardOrThrow(id);
+    public Board getBoardById(Long id) {
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
         board.increaseViewCount();
-        return new BoardResponse(board);
+        return board;
     }
 
-    @Transactional
-    public BoardResponse createBoard(BoardRequest request) {
-        Board board = new Board(request.getTitle(), request.getWriter(), request.getContent());
-        Board saved = boardRepository.save(board);
-        return new BoardResponse(saved);
-    }
-
-    @Transactional
-    public BoardResponse updateBoard(Long id, BoardRequest request) {
-        Board board = findBoardOrThrow(id);
-        board.update(request.getTitle(), request.getWriter(), request.getContent());
-        return new BoardResponse(board);
-    }
-
-    @Transactional
+    // 🌸 게시글 삭제
     public void deleteBoard(Long id) {
-        Board board = findBoardOrThrow(id);
+        Board board = boardRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다. id=" + id));
         boardRepository.delete(board);
-    }
-
-    private Board findBoardOrThrow(Long id) {
-        return boardRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("게시글을 찾을 수 없습니다. id=" + id));
-    }
-
-    public BoardResponse createBoard(String title, String writer, String content, MultipartFile image) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createBoard'");
     }
 }

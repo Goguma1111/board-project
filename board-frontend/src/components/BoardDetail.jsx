@@ -22,6 +22,7 @@ function BoardDetail() {
     setError(null);
     try {
       const response = await getBoard(id);
+      console.log("🌸 백엔드에서 받아온 데이터:", response.data); // 👈 F12 콘솔에서 imageUrl이 있는지 확인용!
       setBoard(response.data);
     } catch (err) {
       console.error(err);
@@ -64,8 +65,10 @@ function BoardDetail() {
   if (!board) return null;
 
   // 본인이 작성한 글인지 체크 (작성자 이름 또는 이메일 기반)
-  const isOwner =
-    user && (user.name === board.writer || user.email === board.writer);
+  const isOwner = user && (
+    user.name === board.writer || 
+    user.email === board.writer || 
+    user.nickname === board.writer);
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-10">
