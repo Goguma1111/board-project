@@ -49,12 +49,12 @@
 
 ## 실행방법 (backend)
 
-cd board-backend
+cd board-backend <br>
 mvn spring-boot:run
 
 ---
 
 ## 실행방법 (frontend)
-cd board-frontend
-npm install
-npm run dev
+cd board-frontend <br>
+npm install <br>
+npm run dev <br>
