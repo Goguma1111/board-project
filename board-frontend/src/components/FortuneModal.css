@@ -1,0 +1,106 @@
+/* 모달 배경 */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* 모달 창 */
+.fortune-modal-content {
+  background-color: #fff9fa;
+  padding: 30px;
+  border-radius: 25px;
+  width: 360px;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 10px 25px rgba(255, 183, 197, 0.5);
+  border: 3px solid #ffdeeb;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px; right: 20px;
+  border: none; background: none;
+  font-size: 20px; color: #aaa;
+  cursor: pointer;
+}
+
+.sub-title {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 20px;
+}
+
+/* 쿠키 아이콘 크기 지정 */
+.cookie-container {
+  font-size: 80px;
+  cursor: pointer;
+  user-select: none;
+  height: 110px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 쿠키 흔들기 애니메이션 (로딩 중) */
+.shake {
+  animation: shakeAnimation 0.5s infinite;
+}
+
+@keyframes shakeAnimation {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* 쿠키 쪼개지기 애니메이션 */
+.cookie-cracked {
+  display: flex;
+  gap: 20px;
+}
+
+.cookie-left {
+  clip-path: inset(0 50% 0 0); /* 왼쪽 반만 자르기 */
+  animation: crackLeft 0.5s forwards;
+}
+
+.cookie-right {
+  clip-path: inset(0 0 0 50%); /* 오른쪽 반만 자르기 */
+  animation: crackRight 0.5s forwards;
+}
+
+@keyframes crackLeft {
+  to { transform: translateX(-30px) rotate(-20deg); opacity: 0.5; }
+}
+
+@keyframes crackRight {
+  to { transform: translateX(30px) rotate(20deg); opacity: 0.5; }
+}
+
+/* 운세 결과 종이 스크롤 */
+.fortune-paper {
+  margin-top: 15px;
+  background-color: #ffffff;
+  border: 2px dashed #ffb7c5;
+  border-radius: 15px;
+  padding: 15px;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.fortune-text {
+  white-space: pre-line; /* 줄바꿈 100% 유지 */
+  font-size: 14px;
+  color: #444;
+  line-height: 1.6;
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

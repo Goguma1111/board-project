@@ -20,3 +20,8 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.MySQLDialect
     open-in-view: false
+
+# Gemini API Key (독립된 최상위 설정)
+gemini:
+  api:
+    key: "AQ.Ab8RN6LwhMgtQokYznnzPU3wcsP3X1COCmh6Nhi62G2kookvbA"

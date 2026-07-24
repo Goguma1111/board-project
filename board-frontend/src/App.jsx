@@ -6,6 +6,7 @@ import BoardDetail from "./components/BoardDetail";
 import BoardWrite from "./components/BoardWrite";
 import BoardEdit from "./components/BoardEdit";
 import LoginPage from "./components/LoginPage";
+import MongleChat from './components/MongleChat';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/boards/:id/edit" element={<BoardEdit />} />
           <Route path="/login" element={<LoginPage />} />
         </Routes>
+        <MongleChat />
       </BrowserRouter>
     </AuthProvider>
   );
