@@ -24,4 +24,4 @@ spring:
 # Gemini API Key (독립된 최상위 설정)
 gemini:
   api:
-    key: "AQ.Ab8RN6LwhMgtQokYznnzPU3wcsP3X1COCmh6Nhi62G2kookvbA"
+    key: ${GEMINI_API_KEY:YOUR_GEMINI_API_KEY} # 하드코딩된 실제 키 값 삭제
